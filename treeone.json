@@ -1,0 +1,31 @@
+{
+    "paths": 
+      [
+	  {"path": "/", "entityName": "company"}
+
+      ],
+    
+    "entities":
+    [
+
+	{"entity": "company", "fields":
+		 [
+		     {"field": "company_name", "fieldFunction": "company.companyName()"},
+		     {"field": "first_name", "fieldFunction": "name.firstName()"},
+		     {"field": "first_name2", "fieldFunction": "self(Milind)"},
+		     {"field": "last_name2", "fieldFunction": "async.lookup()"}
+		 ]
+	},
+
+	{"entity": "user", "fields":
+	 [
+
+	     {"field": "last_name", "fieldFunction": "name.lastName()"}
+
+	 ] 
+	}	
+	
+    ]
+    
+
+}
