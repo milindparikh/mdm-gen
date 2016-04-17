@@ -46,8 +46,6 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     var firstName = faker.name.firstName();
 			     obj[item] = firstName;
 			     return doneCallback(null, firstName);
-
-
 			 },
 			 "name.lastName":
 			 function (item, doneCallback, obj) {
@@ -83,7 +81,6 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			 "async.lookup":
 			 function (item, doneCallback, obj) {
 			     client.get("abc", function (err, val) {
-				 //			     console.log(val);
 				 obj[item] = val;
 				 return doneCallback(null, val);
 			     });
@@ -96,6 +93,54 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     obj[item] = zipCode;
 			     return doneCallback(null, zipCode);
 			 },
+
+			 "random.valueFromRange":
+
+			 function(item, doneCallback, obj, range) {
+			     var value;
+			     
+			     if (range) {
+				 var index = ~~random(0, range.length) ;
+				 value = range[index];
+			     }
+			     
+			     obj[item] = value;
+			     return doneCallback(null, value);
+
+			 },
+			 
+			 "random.integerInRange":
+			 function(item, doneCallback, obj, range) {
+
+			     
+			     var number = 0;
+			     var max = 0;
+			     var min = 0;
+			     
+			     if (range) {
+				 if (range.length == 1 ) {
+				     
+				     max = parseInt(range[0]);
+				 }
+				 else {
+				     if (range.length == 2) {
+					 min = parseInt(range[0]);
+					 max = parseInt(range[1]);
+				     }
+				 }
+			     }
+			     
+			     if (min == max) {
+				 number = min;
+			     }
+			     else {
+				 number = random(min, max);
+			     }
+			     
+			     obj[item] = ~~number;
+			     return doneCallback(null, number);
+			 },
+			 
 			 "random.number":
 			 function(item, doneCallback, obj) {
 			     var number = faker.random.number();
@@ -367,7 +412,14 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			    realFunctionArg = loc[0][extractAttrib];
 			}
 			else {
-			    realFunctionArg = refFunctionArg;
+			    var regexArray = /\[(.*)\]/;
+			    if (refFunctionArg.match(regexArray) ) {
+				var rawArray = refFunctionArg.match(regexArray)[1];
+				realFunctionArg = rawArray.split(",");
+			    }
+			    else {
+				realFunctionArg = refFunctionArg;
+			    }
 			}
 		    }
 		}
