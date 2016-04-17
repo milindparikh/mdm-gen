@@ -77,7 +77,6 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     return doneCallback(null, companyName);
 			 },
 
-			 
 			 "async.lookup":
 			 function (item, doneCallback, obj) {
 			     client.get("abc", function (err, val) {
@@ -93,7 +92,6 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     obj[item] = zipCode;
 			     return doneCallback(null, zipCode);
 			 },
-
 			 "random.valueFromRange":
 			 function(item, doneCallback, obj, range) {
 			     var value;
@@ -104,7 +102,6 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     obj[item] = value;
 			     return doneCallback(null, value);
 			 },
-
 			 "testRangeIndex":
 			 function(item, doneCallback, obj, range) {
 			     var value = range[range[0]];
@@ -113,7 +110,6 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			 },
 			 "random.integerInRange":
 			 function(item, doneCallback, obj, range) {
-			     
 			     var number = 0;
 			     var max = 0;
 			     var min = 0;
@@ -172,33 +168,16 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 
 	function done(level, obj) {
 	    if (level == 1) {
-
 		var cpyObject = {};
 		cpyObject[paths[0]["entityName"]] = obj;
-		
-
-
 		transformToES(cpyObject[paths[0]["entityName"]], {}, 0);
 		processEachUberCount ();
-		
-	    }
-	    if (level == 0) {
-		//	    Object.keys(obj).forEach (function (key) {
-
-
-
-//		client.quit();
-		//		transformToES(obj[key], {}, 0);
-		//	    });
-		
 	    }
 	}
-
 
 	function doneTransformToES (newObj, level) {
 	    if (level == 0) {
 		console.log(JSON.stringify(newObj));
-
 	    }
 	}
 	
