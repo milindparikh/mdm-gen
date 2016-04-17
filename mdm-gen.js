@@ -95,23 +95,24 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			 },
 
 			 "random.valueFromRange":
-
 			 function(item, doneCallback, obj, range) {
 			     var value;
-			     
 			     if (range) {
 				 var index = ~~random(0, range.length) ;
 				 value = range[index];
 			     }
-			     
 			     obj[item] = value;
 			     return doneCallback(null, value);
-
 			 },
-			 
+
+			 "testRangeIndex":
+			 function(item, doneCallback, obj, range) {
+			     var value = range[range[0]];
+			     obj[item] = value;
+			     return doneCallback(null, value);
+			 },
 			 "random.integerInRange":
 			 function(item, doneCallback, obj, range) {
-
 			     
 			     var number = 0;
 			     var max = 0;
@@ -383,46 +384,60 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 		var realFunctionName = item.fieldFunction.match(regexFunctionName)[1];
 		var refFunctionArg = item.fieldFunction.match(regexFunctionName)[2];
 		var realFunctionArg = null;
+		var regexArray = /\[(.*)\]/;
+		
 
-		if (refFunctionArg != "") {
-		    var regexFunctionArgThis = /this\.(.*)/;
-		    var regexFunctionArgPath = /^\./;
-		    if (refFunctionArg.match(regexFunctionArgThis)) {
-			realFunctionArg = refFunctionArg.match(regexFunctionArgThis)[1];
-			realFunctionArg = obj[realFunctionArg];
-		    }
-		    else {
-			if (refFunctionArg.match(regexFunctionArgPath)) {
-			    var loc = curObj[execPath[0]];
-			    var regexAttrib = /.*\/(.*)$/;
-			    var regexCountIndirection = /\.\./g;
-			    var extractAttrib = refFunctionArg.match(regexAttrib)[1];
-			    var countIndirection = ( refFunctionArg.match(regexCountIndirection) || []).length;
-			    countIndirection = (countIndirection - 1) * 2;
-			    
-			    for (var cnt = 2; cnt < execPath.length - countIndirection; cnt+=2) {
-				var entity = execPath[cnt];
-				var entityId = execPath[cnt+1];
-				for (var cnt2 = 1; cnt2 < loc.length; cnt2++) {
-				    if (entityId == loc[cnt2][entity][0]["id"] ) {
-					loc = loc[cnt2][entity];
-				    }
-				}
-			    }
-			    realFunctionArg = loc[0][extractAttrib];
+		function argRefToValue (refFunctionArg) {
+		    var realFunctionArg2 = null;
+		    if (refFunctionArg != "") {
+			var regexFunctionArgThis = /this\.(.*)/;
+			var regexFunctionArgPath = /^\./;
+			if (refFunctionArg.match(regexFunctionArgThis)) {
+			    realFunctionArg2 = refFunctionArg.match(regexFunctionArgThis)[1];
+			    return ( obj[realFunctionArg2]);
 			}
 			else {
-			    var regexArray = /\[(.*)\]/;
-			    if (refFunctionArg.match(regexArray) ) {
-				var rawArray = refFunctionArg.match(regexArray)[1];
-				realFunctionArg = rawArray.split(",");
+			    if (refFunctionArg.match(regexFunctionArgPath)) {
+				var loc = curObj[execPath[0]];
+				var regexAttrib = /.*\/(.*)$/;
+				var regexCountIndirection = /\.\./g;
+				var extractAttrib = refFunctionArg.match(regexAttrib)[1];
+				var countIndirection = ( refFunctionArg.match(regexCountIndirection) || []).length;
+				countIndirection = (countIndirection - 1) * 2;
+				
+				for (var cnt = 2; cnt < execPath.length - countIndirection; cnt+=2) {
+				    var entity = execPath[cnt];
+				    var entityId = execPath[cnt+1];
+				    for (var cnt2 = 1; cnt2 < loc.length; cnt2++) {
+					if (entityId == loc[cnt2][entity][0]["id"] ) {
+					    loc = loc[cnt2][entity];
+					}
+				    }
+				}
+				return( loc[0][extractAttrib]);
 			    }
 			    else {
-				realFunctionArg = refFunctionArg;
+				return refFunctionArg;
 			    }
 			}
 		    }
+		    else {
+			return null
+		    }
 		}
+		
+
+
+		if (refFunctionArg.match(regexArray) ) {
+		    var rawArray = refFunctionArg.match(regexArray)[1];
+		    realFunctionArg = rawArray.split(",").map (function (obj) {
+			return argRefToValue(obj);
+		    });
+		}
+		else {
+		    realFunctionArg = argRefToValue(refFunctionArg);
+		}
+
 		
 		if (realFunctionName in dispFuncs) {
 		    if (realFunctionArg) {
