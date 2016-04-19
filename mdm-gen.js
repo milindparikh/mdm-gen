@@ -85,7 +85,9 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     });
 			     
 			 },
-			 
+
+
+
 
 			 "address.stateForZipCode":
 			 function (item, doneCallback, obj, zipcode) {
@@ -358,81 +360,100 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 
 
 	function generateEntity(entityName, fields, obj, curObj, execPath, doneCallbackx) {
-	    var execDispFunc = function (item, doneCallback) {
-		var regexFunctionName = /(.*)\((.*)\)/;
-		var realFunctionName = item.fieldFunction.match(regexFunctionName)[1];
-		var refFunctionArg = item.fieldFunction.match(regexFunctionName)[2];
-		var realFunctionArg = null;
-		var regexArray = /\[(.*)\]/;
-		
+	    var execDispFunc = function (pitem) {
 
-		function argRefToValue (refFunctionArg) {
-		    var realFunctionArg2 = null;
-		    if (refFunctionArg != "") {
-			var regexFunctionArgThis = /this\.(.*)/;
-			var regexFunctionArgPath = /^\./;
-			if (refFunctionArg.match(regexFunctionArgThis)) {
-			    realFunctionArg2 = refFunctionArg.match(regexFunctionArgThis)[1];
-			    return ( obj[realFunctionArg2]);
-			}
-			else {
-			    if (refFunctionArg.match(regexFunctionArgPath)) {
-				var loc = curObj[execPath[0]];
-				var regexAttrib = /.*\/(.*)$/;
-				var regexCountIndirection = /\.\./g;
-				var extractAttrib = refFunctionArg.match(regexAttrib)[1];
-				var countIndirection = ( refFunctionArg.match(regexCountIndirection) || []).length;
-				countIndirection = (countIndirection - 1) * 2;
-				
-				for (var cnt = 2; cnt < execPath.length - countIndirection; cnt+=2) {
-				    var entity = execPath[cnt];
-				    var entityId = execPath[cnt+1];
-				    for (var cnt2 = 1; cnt2 < loc.length; cnt2++) {
-					if (entityId == loc[cnt2][entity][0]["id"] ) {
-					    loc = loc[cnt2][entity];
-					}
-				    }
-				}
-				return( loc[0][extractAttrib]);
+		return function (doneCallback) {
+		    var item = pitem
+		    var regexFunctionName = /(.*)\((.*)\)/;
+		    var realFunctionName = item.fieldFunction.match(regexFunctionName)[1];
+		    var refFunctionArg = item.fieldFunction.match(regexFunctionName)[2];
+		    var realFunctionArg = null;
+		    var regexArray = /\[(.*)\]/;
+		    
+
+		    function argRefToValue (refFunctionArg) {
+			var realFunctionArg2 = null;
+			if (refFunctionArg != "") {
+			    var regexFunctionArgThis = /this\.(.*)/;
+			    var regexFunctionArgPath = /^\./;
+			    
+
+			    if (refFunctionArg.match(regexFunctionArgThis)) {
+				realFunctionArg2 = refFunctionArg.match(regexFunctionArgThis)[1];
+				return ( obj[realFunctionArg2]);
 			    }
 			    else {
-				return refFunctionArg;
+				if (refFunctionArg.match(regexFunctionArgPath)) {
+				    var loc = curObj[execPath[0]];
+				    var regexAttrib = /.*\/(.*)$/;
+				    var regexCountIndirection = /\.\./g;
+				    var extractAttrib = refFunctionArg.match(regexAttrib)[1];
+				    var countIndirection = ( refFunctionArg.match(regexCountIndirection) || []).length;
+				    countIndirection = (countIndirection - 1) * 2;
+				
+				    for (var cnt = 2; cnt < execPath.length - countIndirection; cnt+=2) {
+					var entity = execPath[cnt];
+					var entityId = execPath[cnt+1];
+					for (var cnt2 = 1; cnt2 < loc.length; cnt2++) {
+					    if (entityId == loc[cnt2][entity][0]["id"] ) {
+						loc = loc[cnt2][entity];
+					    }
+					}
+				    }
+				    return( loc[0][extractAttrib]);
+				}
+				else {
+				    return refFunctionArg;
+				}
 			    }
+			}
+			else {
+			    return null
+			}
+		    }
+		    
+		    
+		    
+		    if (refFunctionArg.match(regexArray) ) {
+			var rawArray = refFunctionArg.match(regexArray)[1];
+			realFunctionArg = rawArray.split(",").map (function (obj) {
+			    return argRefToValue(obj);
+			});
+		    }
+		    else {
+			realFunctionArg = argRefToValue(refFunctionArg);
+		    }
+		    
+		    
+		    if (realFunctionName in dispFuncs) {
+			if (realFunctionArg) {
+			    return dispFuncs[realFunctionName](item.field, doneCallback, obj, realFunctionArg);
+			}
+			else {
+			    return dispFuncs[realFunctionName](item.field, doneCallback, obj);
 			}
 		    }
 		    else {
-			return null
+			return dispFuncs["notimplemented"](item.field, doneCallback, obj);
 		    }
-		}
-		
-
-
-		if (refFunctionArg.match(regexArray) ) {
-		    var rawArray = refFunctionArg.match(regexArray)[1];
-		    realFunctionArg = rawArray.split(",").map (function (obj) {
-			return argRefToValue(obj);
-		    });
-		}
-		else {
-		    realFunctionArg = argRefToValue(refFunctionArg);
-		}
-
-		
-		if (realFunctionName in dispFuncs) {
-		    if (realFunctionArg) {
-			return dispFuncs[realFunctionName](item.field, doneCallback, obj, realFunctionArg);
-		    }
-		    else {
-			return dispFuncs[realFunctionName](item.field, doneCallback, obj);
-		    }
-		}
-		else {
-		    return dispFuncs["notimplemented"](item.field, doneCallback, obj);
 		}
 	    }
+	    var functionsForFields = [];
+	    
+	    fields.forEach (function (field) {
+		functionsForFields.push(execDispFunc(field));
+	    });
+
+
+	    async.series (functionsForFields, function (e, r) {
+		return doneCallbackx(null, true);
+	    });
+	    
+/*	    
 	    async.map(fields, execDispFunc, function (e, r) {
 		return doneCallbackx(null, true);
 	    });
+*/
 	}
 
 	Array.prototype.subarray=function(start,end){

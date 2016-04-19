@@ -13,7 +13,8 @@
 		     {"field": "company_name", "fieldFunction": "company.companyName()"},
 		     {"field": "first_name", "fieldFunction": "name.firstName()"},
 		     {"field": "first_name2", "fieldFunction": "self(Milind)"},
-		     {"field": "last_name2", "fieldFunction": "async.lookup()"}
+		     {"field": "last_name2", "fieldFunction": "async.lookup()"},
+		     {"field": "last_name3", "fieldFunction": "self(this.last_name2)"}
 		 ]
 	},
 
