@@ -65,6 +65,49 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     obj[item] = zipCode;
 			     return doneCallback(null, zipCode);
 			 },
+
+			 "address.uszipcode":
+			 function (item, doneCallback, obj) {
+			     client.llen("MDM_GEN:LIST:BASE:us-zipcode", function (err, numberOfZips) {
+				 client.lindex ("MDM_GEN:LIST:BASE:us-zipcode", ~~random(1, numberOfZips), function (err2, uszipcode) {
+				     obj[item] = uszipcode;
+				     return doneCallback(null, uszipcode);				     
+				 });
+			     });
+			 },
+
+			 "address.uscity":
+			 function (item, doneCallback, obj, uszipcode) {
+			     client.hget("MDM_GEN:LOOKUP:BASE:us-zipcode-city", uszipcode, function (err, uscity) {
+				 obj[item] = uscity;
+				 return doneCallback(null, uscity);				     
+			     });
+			     
+			 },
+			 
+
+			 "address.uscounty":
+			 function (item, doneCallback, obj, uszipcode) {
+			     client.hget("MDM_GEN:LOOKUP:BASE:us-zipcode-county", uszipcode, function (err, uscounty) {
+				 obj[item] = uscounty;
+				 return doneCallback(null, uscounty);				     
+			     });
+			     
+			 },
+			 
+
+			 "address.usstate":
+			 function (item, doneCallback, obj, uszipcode) {
+			     client.hget("MDM_GEN:LOOKUP:BASE:us-zipcode-state", uszipcode, function (err, usstate) {
+				 obj[item] = usstate;
+				 return doneCallback(null, usstate);				     
+			     });
+			     
+			 },
+			 
+
+			 
+
 			 "company.companyName":
 			 function (item, doneCallback, obj) {
 			     var companyName = faker.company.companyName();
@@ -297,9 +340,10 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			    diff = min;
 			}
 			else {
-			    diff = random(min, max);
+			    diff = ~~random(min, max);
 			}
 
+			
 			var arry = Array(diff);
 			
 			
@@ -449,11 +493,7 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 		return doneCallbackx(null, true);
 	    });
 	    
-/*	    
-	    async.map(fields, execDispFunc, function (e, r) {
-		return doneCallbackx(null, true);
-	    });
-*/
+
 	}
 
 	Array.prototype.subarray=function(start,end){
