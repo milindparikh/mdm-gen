@@ -1,7 +1,7 @@
 var fs = require('fs');
 var uuid = require('node-uuid');
 var faker = require('faker');
-
+var moment = require('moment');
 var redis = require("redis"),
     client = redis.createClient();
 
@@ -26,18 +26,80 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
     tree = JSON.parse(data);
     paths = tree.paths;
     entities = tree.entities;
+    optional = tree.optional;
+
+    
+    
     var startPath = "/";
     var countSoFar = 0;
+    var delay = 0;
+    var md_type = "normal";
+    var event_start = "now";
+    var event_end = null;
+    var event_interval = "1";
+    var event_interval_type = "seconds";
+    var momentintime = new moment();
+    var momentstarttime = null;
+    var momentendtime = null;
+    var glbObj = {};
+    var    intervalId; 
+    
+
+    if (optional) {
+	optional.forEach (function (key) {
+	    if (key['event-generation-interval-in-milliseconds']) {
+		delay = key['event-generation-interval-in-milliseconds'];
+	    }
+	    if (key['event-start']) {
+		event_start = key['event-start'];
+	    }
+	    if (key['event-end']) {
+		event_end = key['event-end'];
+	    }
+	    if (key['event-interval-type']) {
+		event_interval_type = key['event-interval-type'];
+	    }
+
+	    if (key['event-interval']) {
+		event_interval = key['event-interval'];
+	    }
+	});
+    }
+
+    if (event_start == 'now') {
+	momentintime = new moment();
+	momentstarttime = new moment(momentintime);
+	
+    }
+    else {
+	momentintime = new moment(event_start);
+	momentstarttime = new moment(momentintime);
+    }
+
+    glbObj['momentintime'] = momentintime;
+    glbObj['uberCount'] = 0;
+
+
+    if (event_end) {
+	momentendtime = new moment(event_end);
+    }
+
     
     function processEachUberCount () {
 	countSoFar ++ ;
-	if (countSoFar = limit) {
+	glbObj['momentintime'].add(event_interval, event_interval_type);
+	glbObj['uberCount'] = countSoFar;
+	
+	if (countSoFar == limit) {
+	    clearInterval(intervalId);
 	    client.quit();
 	}
     }
-    
-    for (uberCount = 0; uberCount < limit; uberCount++ ) {
 
+
+
+	
+    intervalId = setInterval (function() {
 	var obj = {};
 	var baseObject;
 	
@@ -69,16 +131,34 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			 "address.uszipcode":
 			 function (item, doneCallback, obj) {
 			     client.llen("MDM_GEN:LIST:BASE:us-zipcode", function (err, numberOfZips) {
-				 client.lindex ("MDM_GEN:LIST:BASE:us-zipcode", ~~random(1, numberOfZips), function (err2, uszipcode) {
-				     obj[item] = uszipcode;
-				     return doneCallback(null, uszipcode);				     
-				 });
+				 if (err)  {
+				     obj[item] = "A";
+				     
+				     return doneCallback(null, "null");
+				 }
+				 else {
+				     
+				     rz = ~~random(1, numberOfZips);
+
+				     
+				     client.lindex ("MDM_GEN:LIST:BASE:us-zipcode", rz, function (err2, uszipcode) {
+					 if (err2){
+					     obj[item] = "B";
+					     return doneCallback(null, "null");
+					 }
+					 else {
+					     obj[item] = uszipcode;
+					     return doneCallback(null, uszipcode);
+					 }
+				     });
+				 }
 			     });
 			 },
 
 			 "address.uscity":
 			 function (item, doneCallback, obj, uszipcode) {
 			     client.hget("MDM_GEN:LOOKUP:BASE:us-zipcode-city", uszipcode, function (err, uscity) {
+				 if (err) return doneCallback(null, null);				    
 				 obj[item] = uscity;
 				 return doneCallback(null, uscity);				     
 			     });
@@ -89,6 +169,7 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			 "address.uscounty":
 			 function (item, doneCallback, obj, uszipcode) {
 			     client.hget("MDM_GEN:LOOKUP:BASE:us-zipcode-county", uszipcode, function (err, uscounty) {
+				 if (err) return doneCallback(null, null);				    
 				 obj[item] = uscounty;
 				 return doneCallback(null, uscounty);				     
 			     });
@@ -99,6 +180,7 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			 "address.usstate":
 			 function (item, doneCallback, obj, uszipcode) {
 			     client.hget("MDM_GEN:LOOKUP:BASE:us-zipcode-state", uszipcode, function (err, usstate) {
+				 if (err) return doneCallback(null, null);				    
 				 obj[item] = usstate;
 				 return doneCallback(null, usstate);				     
 			     });
@@ -208,6 +290,12 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     obj[item] = arg;
 			     return doneCallback(null, arg);
 
+			 },
+			 "globaltime":
+			 function (item, doneCallback, obj, arg) {
+			     obj[item] = glbObj['momentintime'].format(arg);
+			     return doneCallback(null, arg);
+			     
 			 }
 			};
 
@@ -216,13 +304,14 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 		var cpyObject = {};
 		cpyObject[paths[0]["entityName"]] = obj;
 		transformToES(cpyObject[paths[0]["entityName"]], {}, 0);
-		processEachUberCount ();
+
 	    }
 	}
 
 	function doneTransformToES (newObj, level) {
 	    if (level == 0) {
 		console.log(JSON.stringify(newObj));
+		processEachUberCount ();
 	    }
 	}
 	
@@ -506,6 +595,7 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 	}
 
 	buildObj(obj, startPath, done, 0, []) ;
+	}, delay);
 
-    }
+
 });

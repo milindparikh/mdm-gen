@@ -27,7 +27,7 @@
 	 [
 	     {"field": "first_name", "fieldFunction": "name.firstName()"},
 	     {"field": "last_name", "fieldFunction": "name.lastName()"},
-	     {"field": "last_name2", "fieldFunction": "async.lookup()"}
+	     {"field": "last_name2", "fieldFunction": "self(this.last_name)"}
 	 ] 
 	}	
 	

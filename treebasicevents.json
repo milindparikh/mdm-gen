@@ -1,0 +1,27 @@
+{
+    "paths": 
+      [
+	  {"path": "/", "entityName": "company"}
+      ],
+    
+    "entities":
+    [
+	{"entity": "company", "fields":
+		 [
+		     {"field": "company_name", "fieldFunction": "company.companyName()"},
+		     {"field": "zipcode", "fieldFunction": "address.uszipcode()"},
+		     {"field": "time", "fieldFunction": "globaltime(YYYY-MM-DDTHH:mm)"}
+		 ]
+	}
+    ],
+
+    "optional":
+    [
+	{"md-type": "event"},
+	{"event-start": "2016-01-01"},
+	{"event-interval-type": "days"},
+	{"event-interval": 1},
+	{"event-end": "2016-04-24"},
+	{"event-generation-interval-in-milliseconds": 1000}
+    ]
+}

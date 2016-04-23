@@ -3,7 +3,6 @@
       [
 	  {"path": "/", "entityName": "company"},
 	  {"path": "/company", "entityName": "user", "min": 1, "max":3, "distribution": "random"}
-
       ],
     
     "entities":
