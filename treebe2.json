@@ -1,7 +1,8 @@
 {
     "paths": 
       [
-	  {"path": "/", "entityName": "company"}
+	  {"path": "/", "entityName": "company"},
+	  {"path": "/company", "entityName": "address", "min": 2, "max":3, "distribution": "random"}
       ],
     
     "entities":
@@ -10,13 +11,16 @@
 		 [
 		     {"field": "company_name", "fieldFunction": "company.companyName()"},
 		     {"field": "state", "fieldFunction": "address.randomusstate()"},
-		     {"field": "zipcode", "fieldFunction": "address.randomuszipcodeforstate(this.state)"},
-
-
-		     
 		     {"field": "time", "fieldFunction": "globaltime(YYYY-MM-DDTHH:mm:ss)"}
 		 ]
+	},
+	{"entity": "address", "fields":
+	 [
+	     {"field": "dba", "fieldFunction": "self(../company_name)"},
+	     {"field": "zipcode", "fieldFunction": "address.randomuszipcodeforstate(../state)"}
+	 ]
 	}
+
     ],
 
     "optional":

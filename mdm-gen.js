@@ -14,10 +14,6 @@ if (process.argv[3]) {
 }
 
 
-
-
-
-
 fs.readFile(process.argv[2], 'utf8', function (err, data) {
 
     var paths;
@@ -27,8 +23,6 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
     paths = tree.paths;
     entities = tree.entities;
     optional = tree.optional;
-
-    
     
     var startPath = "/";
     var countSoFar = 0;
@@ -128,19 +122,15 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     return doneCallback(null, zipCode);
 			 },
 
-			 "address.uszipcode":
+			 "address.randomuszipcode":
 			 function (item, doneCallback, obj) {
 			     client.llen("MDM_GEN:LIST:BASE:us-zipcode", function (err, numberOfZips) {
 				 if (err)  {
 				     obj[item] = "A";
-				     
 				     return doneCallback(null, "null");
 				 }
 				 else {
-				     
 				     rz = ~~random(1, numberOfZips);
-
-				     
 				     client.lindex ("MDM_GEN:LIST:BASE:us-zipcode", rz, function (err2, uszipcode) {
 					 if (err2){
 					     obj[item] = "B";
@@ -155,7 +145,62 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     });
 			 },
 
-			 "address.uscity":
+
+			 "address.randomusstate":
+			 function (item, doneCallback, obj) {
+			     client.llen("MDM_GEN:LIST:BASE:us-state", function (err, numberOfStates) {
+				 if (err)  {
+				     obj[item] = "A";
+				     return doneCallback(null, "null");
+				 }
+				 else {
+				     rs = ~~random(1, numberOfStates);
+
+				     
+				     client.lindex ("MDM_GEN:LIST:BASE:us-state", rs, function (err2, usstate) {
+					 if (err2){
+					     obj[item] = "B";
+					     return doneCallback(null, "null");
+					 }
+					 else {
+					     obj[item] = usstate;
+					     return doneCallback(null, usstate);
+					 }
+				     });
+				 }
+			     });
+			 },
+
+			 "address.randomuszipcodeforstate":
+			 function (item, doneCallback, obj, usstate) {
+			     client.llen("MDM_GEN:LIST:BASE:us-state-zipcode:"+usstate, function (err, numberOfZips) {
+				 if (err)  {
+				     obj[item] = "A";
+				     return doneCallback(null, "null");
+				 }
+				 else {
+				     rz = ~~random(1, numberOfZips);
+
+				     
+				     client.lindex ("MDM_GEN:LIST:BASE:us-state-zipcode:"+usstate, rz, function (err2, uszipcode) {
+					 if (err2){
+					     obj[item] = "B";
+					     return doneCallback(null, "null");
+					 }
+					 else {
+					     obj[item] = uszipcode;
+					     return doneCallback(null, uszipcode);
+					 }
+				     });
+				 }
+			     });
+			 },
+
+
+
+			 
+			 
+			 "address.uscityforzipcode":
 			 function (item, doneCallback, obj, uszipcode) {
 			     client.hget("MDM_GEN:LOOKUP:BASE:us-zipcode-city", uszipcode, function (err, uscity) {
 				 if (err) return doneCallback(null, null);				    
@@ -166,18 +211,7 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			 },
 			 
 
-			 "address.uscounty":
-			 function (item, doneCallback, obj, uszipcode) {
-			     client.hget("MDM_GEN:LOOKUP:BASE:us-zipcode-county", uszipcode, function (err, uscounty) {
-				 if (err) return doneCallback(null, null);				    
-				 obj[item] = uscounty;
-				 return doneCallback(null, uscounty);				     
-			     });
-			     
-			 },
-			 
-
-			 "address.usstate":
+			 "address.usstateforzipcode":
 			 function (item, doneCallback, obj, uszipcode) {
 			     client.hget("MDM_GEN:LOOKUP:BASE:us-zipcode-state", uszipcode, function (err, usstate) {
 				 if (err) return doneCallback(null, null);				    
@@ -199,7 +233,7 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			 "notimplemented":
 			 function (item, doneCallback, obj) {
 			     obj[item] = "not implemented";
-			     return doneCallback(null, companyName);
+			     return doneCallback(null, "notimplemented");
 			 },
 
 			 "async.lookup":
@@ -304,22 +338,18 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 		var cpyObject = {};
 		cpyObject[paths[0]["entityName"]] = obj;
 		transformToES(cpyObject[paths[0]["entityName"]], {}, 0);
-
+		processEachUberCount ();
 	    }
 	}
 
 	function doneTransformToES (newObj, level) {
 	    if (level == 0) {
 		console.log(JSON.stringify(newObj));
-		processEachUberCount ();
+	
 	    }
 	}
-	
-	
 
 	function transformToES (obj, newObj, level) {
-
-
 	    if (level != 0) {
 		newObj.push({});
 		newObj = newObj[newObj.length -1];
@@ -351,13 +381,10 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			    newObj[key] = [];
 			    transformToES (obj[cnt][key], newObj[key], level+1);
 			}
-			
 		    }
 		}
 	    });
-
 	    doneTransformToES(newObj, level);
-	    
 	}
 	
 	
@@ -594,8 +621,11 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 	    return Math.random() * (high - low) + low;
 	}
 
-	buildObj(obj, startPath, done, 0, []) ;
-	}, delay);
+
+	if (countSoFar < limit) {
+	    buildObj(obj, startPath, done, 0, []) ;
+	}
+    }, delay);
 
 
 });
