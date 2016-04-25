@@ -54,6 +54,8 @@ HelloWorld of mdm-gen.js
 	                    produces
      	          {"company_name":"Keebler - Sipes"}
 
+With repeatibility in mind
+
              nodejs mdm-gen.js examples/helloworld/company.json 3
 	     	          produces
 		  {"company_name":"Oberbrunner, Treutel and Hilll"}
@@ -66,7 +68,8 @@ HelloWorld of mdm-gen.js
 	          company.json reads like this
 		  	       1. Produce a entity called company at root level ({"path":"/"})
 			       2. The entity company has one field called "company_name" and is satisfied by a magic-o-function called company.companyName()
-			       
+With nestability in mind
+
 	examples/helloworld/company-with-nesting.json
 	     mimked after a  file-system -- not to be taken literally
 	          / --> company
