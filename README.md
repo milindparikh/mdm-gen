@@ -71,6 +71,7 @@ With repeatibility in mind
 With nestability in mind
 
 	examples/helloworld/company-with-nesting.json
+	
 	     mimked after a  file-system -- not to be taken literally
 	          / --> company
 		  /company --> addresss
@@ -111,4 +112,63 @@ With nestability in mind
 					  ]
 			}
 
-		
+
+With nestability taken a little bit far
+
+     		 examples/helloworld/company-with-levels-of-nesting.json
+
+
+			{
+			    "paths": 
+      			    	     [
+					{"path": "/", "entityName": "company"},
+					{"path": "/company", "entityName": "address", "min": 1, "max":3, "distribution": "random"},
+	  				{"path": "/company", "entityName": "user", "min": 1, "max":5, "distribution": "random"},
+	 				 {"path": "/company/user", "entityName": "userAddress", "min": 1, "max":1, "distribution": "random"}
+	  			     ],
+    		            "entities":
+					[
+						{"entity": "company", "fields":
+		 					   [
+									     {"field": "company_name", "fieldFunction": "company.companyName()"}
+		 					   ]
+					        },
+						{"entity": "address", "fields":
+		 					   [
+							   		     {"field": "streetAddress", "fieldFunction": "address.streetAddress()"},
+									     {"field": "zipCode", "fieldFunction": "address.zipCode()"}
+		 					   ]
+						},
+						{"entity": "user", "fields":
+							   [
+							   		     {"field": "firstName", "fieldFunction": "name.firstName()"},
+									     {"field": "lastName", "fieldFunction": "name.lastName()"}
+		 					   ]
+						},
+						{"entity": "userAddress", "fields":
+							 [
+							 	     {"field": "streetAddress", "fieldFunction": "address.streetAddress()"},
+								     {"field": "zipCode", "fieldFunction": "address.zipCode()"}
+	 						]
+						}
+    					]
+			}
+
+
+				produces addresses and users (with user addresses) nesting with company
+				
+
+			{
+				"company_name":"Turner, King and Crona",
+				"address":[
+					{"streetAddress":"4526 Pouros Cliffs","zipCode":"38880"},
+					{"streetAddress":"796 Emory Neck","zipCode":"48552"}
+				],
+				"user":[
+					{"firstName":"Lane","lastName":"Ullrich","userAddress":[{"streetAddress":"677 Rutherford Knoll","zipCode":"21343"}]},
+					{"firstName":"Johnpaul","lastName":"Terry","userAddress":[{"streetAddress":"608 Lois Ways","zipCode":"47146"}]},
+					{"firstName":"Monty","lastName":"Bode","userAddress":[{"streetAddress":"57886 Dach Ramp","zipCode":"95789"}]},
+					{"firstName":"Isaiah","lastName":"Pollich","userAddress":[{"streetAddress":"357 Murazik Club","zipCode":"22211"}]}
+				        ]
+			}
+			
