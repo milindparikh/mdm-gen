@@ -3,18 +3,28 @@ Master Data Generator -- Nestable, Customizable and Scalable
 
 mdm-gen is the result of years of frustration in not being able to experience data in the user context. 
 
-Every user has a different story. 
+Every user has a different story.
+
       Why shoud the variety of data be a limiting factor (minus doing a six month POC)?
-      Why should that variety not be realistic ? 
-        For example, 
+      
+      Why should that variety not be realistic ?
+      
+        For example,
+	
           If the random zipcode (94086) is randonly chosen, why should the state not be automatically be California?
-          If I choose a state of California, why shouldnt all the zipcodes randomly generated under that state be in California?
-        Why, when I create a stream of events, should those events be not directly relatable to the Master Data?
+
+	  If I choose a state of California, why shouldnt all the zipcodes randomly generated under that state be in California?
+	  
+          Why, when I create a stream of events, should those events be not directly relatable to the Master Data?
+	
       Why shouldn't that variety be extensible ?
-        Why can I not provide a simple cut-n-paste functionality that would enable thousands of users experience their data their way?
-        Even if I cannot imagine all the variety of data being generated, 
-          why shouldn't the plumbing be provided so that to extend the porcelin to account for that variety?
-      ...
+      
+	  Why can I not provide a simple cut-n-paste functionality that would enable thousands of users experience their data their way?
+	
+          Even if I cannot imagine all the variety of data being generated,
+	
+          Why shouldn't the plumbing be provided so that to extend the porcelin to account for that variety?
+...
 
 If this is remotely interesting, read on...
 
