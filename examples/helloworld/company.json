@@ -1,0 +1,14 @@
+{
+    "paths": 
+      [
+	  {"path": "/", "entityName": "company"}
+      ],
+    "entities":
+    [
+	{"entity": "company", "fields":
+		 [
+		     {"field": "company_name", "fieldFunction": "company.companyName()"}
+		 ]
+	}	
+    ]
+}
