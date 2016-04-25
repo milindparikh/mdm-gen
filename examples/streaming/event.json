@@ -24,6 +24,6 @@
 	{"event-interval-type": "hours"},
 	{"event-interval": 1},
 	{"event-end": "2016-04-24"},
-	{"event-generation-interval-in-milliseconds": 5000}
+	{"event-generation-interval-in-milliseconds": 10}
     ]
 }
