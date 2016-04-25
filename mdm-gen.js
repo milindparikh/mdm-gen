@@ -26,7 +26,7 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
     
     var startPath = "/";
     var countSoFar = 0;
-    var delay = 0;
+    var delay = 10;
     var md_type = "normal";
     var event_start = "now";
     var event_end = null;
@@ -36,7 +36,8 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
     var momentstarttime = null;
     var momentendtime = null;
     var glbObj = {};
-    var    intervalId; 
+    var intervalId;
+    var sessionId = "default";
     
 
     if (optional) {
@@ -72,7 +73,8 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 
     glbObj['momentintime'] = momentintime;
     glbObj['uberCount'] = 0;
-
+    glbObj['sessionId'] = sessionId;
+    
 
     if (event_end) {
 	momentendtime = new moment(event_end);
@@ -253,6 +255,40 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     obj[item] = zipCode;
 			     return doneCallback(null, zipCode);
 			 },
+
+
+			 "session.setKeyValue":
+			 function(item, doneCallback, obj, range) {
+
+			     var key = range[0];
+			     var value = range[1];
+
+			     var sessionId = glbObj['sessionId'];
+			     
+			     client.hset("MDM_GEN:LOOKUP:SESSION:"+sessionId+":ATTRIBUTES", key, "1", function (err, retV1) {
+				 if (!err) {
+				     client.rpush("MDM_GEN:LIST:SESSION:"+sessionId+":"+key, value, function (err2, retV2) {
+					 return doneCallback(null, "ok");
+				     });
+				 }
+				 else {
+				     return doneCallback(null, "NOTok");
+				 }
+			     });
+			 },
+			 
+			 "session.getRandomKeyValue":
+			 function(item, doneCallback, obj, key) {
+			     var sessionId = glbObj['sessionId'];
+			     client.llen("MDM_GEN:LIST:SESSION:"+sessionId+":"+key, function (err, len) {
+				 var number = ~~random(0, len);
+				 client.lindex("MDM_GEN:LIST:SESSION:"+sessionId+":"+key, number, function (err2, item2) {
+				     obj[item] = item2;
+				     return doneCallback(null, item2);
+				 });
+			     });
+			 },
+
 			 "random.valueFromRange":
 			 function(item, doneCallback, obj, range) {
 			     var value;
@@ -314,7 +350,7 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 
 			 "random.word":
 			 function(item, doneCallback, obj) {
-			     var word = faker.random.word();
+			     var word = faker.lorem.word();
 			     obj[item] = word;
  			     return doneCallback(null, word);
 			 },

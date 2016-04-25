@@ -1,0 +1,28 @@
+{
+    "paths": 
+      [
+	  {"path": "/", "entityName": "model"}
+      ],
+    
+    "entities":
+    [
+	{"entity": "model", "fields":
+		 [
+		     {"field": "model_name", "fieldFunction": "name.firstName()"},
+		     {"field": "class", "fieldFunction": "random.valueFromRange([1,2,3])"},
+		     {"field": "rank", "fieldFunction": "random.valueFromRange([10,20,30,40,50,60])"},
+		     {"field": "noop", "fieldFunction": "session.setKeyValue([model_name,this.model_name])"}
+		 ]
+	}
+    ],
+
+    "optional":
+    [
+	{"md-type": "event"},
+	{"event-start": "2016-01-01"},
+	{"event-interval-type": "days"},
+	{"event-interval": 1},
+	{"event-end": "2016-04-24"},
+	{"event-generation-interval-in-milliseconds": 10}
+    ]
+}

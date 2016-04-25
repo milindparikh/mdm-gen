@@ -1,0 +1,28 @@
+{
+    "paths": 
+      [
+	  {"path": "/", "entityName": "event"}
+      ],
+    
+    "entities":
+    [
+	{"entity": "event", "fields":
+		 [
+		     {"field": "uuid", "fieldFunction": "random.uuid()"},
+		     {"field": "zipcode", "fieldFunction": "session.getRandomKeyValue(zipcode)"},
+		     {"field": "rainfall", "fieldFunction": "random.valueFromRange([25,30, 35,40, 45])"},
+		     {"field": "time", "fieldFunction": "globaltime(YYYY-MM-DDTHH:mm:ss)"}
+		 ]
+	}
+    ],
+
+    "optional":
+    [
+	{"md-type": "event"},
+	{"event-start": "2016-01-01"},
+	{"event-interval-type": "hours"},
+	{"event-interval": 1},
+	{"event-end": "2016-04-24"},
+	{"event-generation-interval-in-milliseconds": 10}
+    ]
+}
