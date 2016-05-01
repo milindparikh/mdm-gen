@@ -1,7 +1,8 @@
 # mdm-gen
 Master Data Generator -- Nestable, Customizable and Scalable
 
-mdm-gen is the result of years of frustration in not being able to experience data in the user context. 
+mdm-gen is the ability to experience data in the user context. mdm-gen has the ability to get data into elasticsearch... which can then do
+search on generated data.
 
 Every user has a different story.
 

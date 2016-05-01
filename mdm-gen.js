@@ -361,9 +361,16 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     return doneCallback(null, arg);
 
 			 },
-			 "globaltime":
+			 "time.globaltime":
 			 function (item, doneCallback, obj, arg) {
 			     obj[item] = glbObj['momentintime'].format(arg);
+			     return doneCallback(null, arg);
+			     
+			 },
+			 "time.currenttime":
+			 function (item, doneCallback, obj, arg) {
+			     var currenttime = new moment();
+			     obj[item] = currenttime.format(arg);
 			     return doneCallback(null, arg);
 			     
 			 }
