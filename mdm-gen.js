@@ -111,6 +111,28 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     obj[item] = lastName;
 			     return doneCallback(null, lastName);
 			 },
+			 "name.prefix":
+			 function (item, doneCallback, obj) {
+			     var prefix = faker.name.prefix();
+			     obj[item] = prefix;
+			     return doneCallback(null, prefix);
+			 },
+
+			 "name.suffix":
+			 function (item, doneCallback, obj) {
+			     var suffix = faker.name.suffix();
+			     obj[item] = suffix;
+			     return doneCallback(null, suffix);
+			 },
+
+			 "name.title":
+			 function (item, doneCallback, obj) {
+			     var title = faker.name.title();
+			     obj[item] = title;
+			     return doneCallback(null, title);
+			 },
+
+
 			 "address.streetAddress":
 			 function (item, doneCallback, obj) {
 			     var streetAddress = faker.address.streetAddress();
