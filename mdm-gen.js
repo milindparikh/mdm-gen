@@ -188,7 +188,52 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     });
 			 },
 
+			 "address.randomuszipcodebypopulation":
+			 function (item, doneCallback, obj) {
 
+			     client.hlen("MDM_GEN:LOOKUP:BASE:binned-us-counties-by-population", function (err, value) {
+
+				 if (err)  {
+				     obj[item] = "A";
+				     return doneCallback(null, "null");
+				 }
+				 else {
+				     
+				     randomCountyPtr = ~~random(1, value);
+				     client.hget ("MDM_GEN:LOOKUP:BASE:binned-us-counties-by-population", randomCountyPtr, function (err2, county) {
+					 if (err2){
+					     obj[item] = "B";
+					     return doneCallback(null, "null");
+					 }
+					 else {
+				
+					     client.llen ("MDM_GEN:LIST:BASE:us-county-state-zipcode:"+county, function (err3, numberofzips) {
+
+						 if (err3){
+						     obj[item] = "B";
+						     return doneCallback(null, "null");
+						 }
+						 else {
+						     randomZipCodePtr = ~~random(0, numberofzips-1);
+						     client.lindex ("MDM_GEN:LIST:BASE:us-county-state-zipcode:"+county, randomZipCodePtr, function (err4, zipcode) {
+							 if (err4){
+							     obj[item] = "B";
+							     return doneCallback(null, "null");
+							 }
+							 else {
+							     
+							     obj[item] = zipcode;
+							     return doneCallback(null, zipcode);
+							 }
+						     })
+						 }
+					     })
+					 }
+				     })
+				 }
+			     })
+			 },
+			     
 			 "address.randomusstate":
 			 function (item, doneCallback, obj) {
 			     client.llen("MDM_GEN:LIST:BASE:us-state", function (err, numberOfStates) {
@@ -402,6 +447,30 @@ fs.readFile(process.argv[2], 'utf8', function (err, data) {
 			     return doneCallback(null, arg);
 
 			 },
+			 "uberCount":
+			 function (item, doneCallback, obj, arg) {
+			     var ub = arg + glbObj['uberCount'];
+			     obj[item] = ub;
+			     return doneCallback(null, ub);
+			 },
+			 "time.randomdayinfuture":
+			 function (item, doneCallback, obj, range) {
+			     var startDay = range[0];
+			     var maxDaysInFuture = range[1];
+			     var arg = range[2];
+			     
+
+			     tmpstartday = new moment(startDay);
+			     rendday = ~~random(1, maxDaysInFuture);
+			     rtmpstartday = new moment(tmpstartday);
+			     
+			     rtmpstartday.add(rendday, "days");
+			     
+			     obj[item] = rtmpstartday.format(arg);
+			     return doneCallback(null, arg);
+			     
+			 },
+			 
 			 "time.globaltime":
 			 function (item, doneCallback, obj, arg) {
 			     obj[item] = glbObj['momentintime'].format(arg);

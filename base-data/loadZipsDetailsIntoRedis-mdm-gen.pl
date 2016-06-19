@@ -34,6 +34,15 @@ while ($aLine = <ZIPFILE>) {
 
  
     $dataElems[2] =~ s/\s//g;
+    $dataElems[4] =~ s/County(\[\d*\])*//g;
+    $dataElems[4] =~ s/\,.*//;
+    $dataElems[4] =~ s/-//;
+    $dataElems[4] =~ s/\s+$//;
+    $dataElems[4] =~ s/\[\d*\]//;
+    $dataElems[4] =~ s/\'//;
+    $dataElems[4] =~ s/\.//;
+    $dataElems[4] =~ s/\s*//g;
+
     
 	$hshStates{$dataElems[2]} = 1;
 
@@ -48,14 +57,18 @@ while ($aLine = <ZIPFILE>) {
 	
 	print "  hset MDM_GEN:LOOKUP:BASE:us-zipcode-city \"".$dataElems[0]."\"      \"".$dataElems[1]."\"";
 	print " \n";
-	print " \n";
+    print " \n";
 	
     print "  rpush MDM_GEN:LIST:BASE:us-state-zipcode:".$dataElems[2]."    \"".$dataElems[0]."\"";
-	
+    print " \n";
+    print " \n";
 
- 	print " \n";
-	print " \n";
- 
+    print "  rpush MDM_GEN:LIST:BASE:us-county-state-zipcode:".$dataElems[4].'-'.$dataElems[2]."    \"".$dataElems[0]."\"";
+    print " \n";
+    print " \n";
+
+
+    
     
 }
     

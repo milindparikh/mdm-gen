@@ -1,0 +1,29 @@
+{
+    "paths": 
+      [
+	  {"path": "/", "entityName": "company"},
+	  {"path": "/company", "entityName": "address", "min": 5, "max":10, "distribution": "random"}
+      ],
+    "entities":
+    [
+	{"entity": "company", "fields":
+		 [
+		     {"field": "company_name", "fieldFunction": "company.companyName()"}
+		 ]
+	},
+	{"entity": "address", "fields":
+		 [
+		     {"field": "streetAddress", "fieldFunction": "address.streetAddress()"},
+		     {"field": "zipCode", "fieldFunction": "address.randomuszipcodebypopulation()"},
+		     {"field": "city", "fieldFunction": "address.uscityforzipcode(this.zipCode)"},
+		     {"field": "state", "fieldFunction": "address.usstateforzipcode(this.zipCode)"}
+		     
+		 ]
+	}
+    ],
+        "optional":
+    [
+	{"event-generation-interval-in-milliseconds": 2}
+    ]
+
+}

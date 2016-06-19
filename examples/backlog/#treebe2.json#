@@ -1,0 +1,36 @@
+{
+    "paths": 
+      [
+	  {"path": "/", "entityName": "company"},
+	  {"path": "/company", "entityName": "address", "min": 2, "max":3, "distribution": "random"}
+      ],
+    
+    "entities":
+    [
+	{"entity": "company", "fields":
+		 [
+		     {"field": "company_name", "fieldFunction": "company.companyName()"},
+		     {"field": "state", "fieldFunction": "address.randomusstate()"},
+		     {"field": "time", "fieldFunction": "globaltime(YYYY-MM-DDTHH:mm:ss)"}
+		 ]
+	},
+	{"entity": "address", "fields":
+	 [
+	     {"field": "dba", "fieldFunction": "self(../company_name)"},
+	     {"field": "zipcode", "fieldFunction": "address.randomuszipcodeforstate(../state)"},
+	     {"field": "noop", "fieldFunction": "session.setKeyValue([zipcode,this.zipcode])"}
+	 ]
+	}
+
+    ],
+
+    "optional":
+    [
+	{"md-type": "event"},
+	{"event-start": "2016-01-01"},
+	{"event-interval-type": "days"},
+	{"event-interval": 1},
+	{"event-end": "2016-04-24"},
+	{"event-generation-interval-in-milliseconds": 10}
+    ]
+}
